@@ -6,7 +6,9 @@ export async function GET() {
   try {
     const settings = await prisma.setting.findMany();
     return NextResponse.json(
-      Object.fromEntries(settings.map((s) => [s.key, s.value])),
+      Object.fromEntries(
+        settings.map((s: { key: string; value: string }) => [s.key, s.value]),
+      ),
     );
   } catch {
     return NextResponse.json({ error: "Erro interno" }, { status: 500 });
