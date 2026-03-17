@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { CourierStatus } from "@prisma/client";
 import { Plus, Bike, Package } from "lucide-react";
+
+type CourierStatus = "AVAILABLE" | "BUSY" | "OFFLINE";
 
 type Order = {
   id: string;
