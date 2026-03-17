@@ -2,6 +2,23 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import QuickAddButton from "@/components/customer/QuickAddButton";
 
+type ProductExtra = { id: string; name: string; price: number };
+type Product = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  price: number;
+  imageUrl: string | null;
+  preparationTime: number;
+  extras: ProductExtra[];
+};
+type Category = {
+  id: string;
+  name: string;
+  products: Product[];
+};
+
 export default async function HomePage() {
   const [categories, settings] = await Promise.all([
     prisma.category.findMany({
@@ -100,7 +117,7 @@ export default async function HomePage() {
             <p className="text-lg">Cardapio em breve.</p>
           </div>
         )}
-        {categories.map((category) => (
+        {(categories as Category[]).map((category) => (
           <div key={category.id} className="mb-16">
             <div className="mb-8 flex items-center gap-4">
               <h2 className="text-xl font-black uppercase tracking-widest text-zinc-100">
