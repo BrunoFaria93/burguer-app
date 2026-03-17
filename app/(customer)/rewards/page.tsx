@@ -147,7 +147,7 @@ export default async function RewardsPage() {
           )}
 
           <div className="space-y-3">
-            {loyaltyCoupons.map((coupon) => (
+            {loyaltyCoupons.map((coupon: (typeof loyaltyCoupons)[0]) => (
               <div
                 key={coupon.id}
                 className="rounded-2xl border border-orange-500/30 bg-orange-500/5 p-6"
