@@ -1,0 +1,305 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                   String         @id @default(cuid())
+  name                 String
+  email                String         @unique
+  emailVerified        DateTime?
+  image                String?
+  passwordHash         String?
+  phone                String?
+  role                 Role           @default(CUSTOMER)
+  loyaltyPoints        Int            @default(0)
+  totalCompletedOrders Int            @default(0)
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+  accounts             Account[]
+  sessions             Session[]
+  addresses            Address[]
+  courier              Courier?
+  loyaltyEvents        LoyaltyEvent[]
+  orders               Order[]
+
+  @@map("users")
+}
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+model Address {
+  id           String  @id @default(cuid())
+  userId       String
+  label        String
+  street       String
+  number       String
+  complement   String?
+  neighborhood String
+  city         String
+  state        String
+  zipCode      String
+  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders       Order[]
+
+  @@map("addresses")
+}
+
+model Category {
+  id       String    @id @default(cuid())
+  name     String
+  slug     String    @unique
+  imageUrl String?
+  active   Boolean   @default(true)
+  position Int       @default(0)
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id              String         @id @default(cuid())
+  categoryId      String
+  name            String
+  slug            String         @unique
+  description     String?
+  price           Float
+  imageUrl        String?
+  active          Boolean        @default(true)
+  preparationTime Int            @default(30)
+  coupons         Coupon[]       @relation("FreeCouponProduct")
+  loyaltyRules    LoyaltyRule[]  @relation("FreeRuleProduct")
+  orderItems      OrderItem[]
+  extras          ProductExtra[]
+  category        Category       @relation(fields: [categoryId], references: [id])
+
+  @@map("products")
+}
+
+model ProductExtra {
+  id        String  @id @default(cuid())
+  productId String
+  name      String
+  price     Float
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_extras")
+}
+
+model Coupon {
+  id              String         @id @default(cuid())
+  code            String         @unique
+  discountType    DiscountType
+  discountValue   Float          @default(0)
+  freeProductId   String?
+  minOrderValue   Float          @default(0)
+  maxUses         Int?
+  usedCount       Int            @default(0)
+  expiresAt       DateTime?
+  active          Boolean        @default(true)
+  isLoyaltyReward Boolean        @default(false)
+  createdAt       DateTime       @default(now())
+  freeProduct     Product?       @relation("FreeCouponProduct", fields: [freeProductId], references: [id])
+  loyaltyEvents   LoyaltyEvent[]
+  orders          Order[]
+
+  @@map("coupons")
+}
+
+model Order {
+  id                    String              @id @default(cuid())
+  customerId            String
+  courierId             String?
+  addressId             String
+  couponId              String?
+  status                OrderStatus         @default(PENDING)
+  paymentStatus         PaymentStatus       @default(PENDING)
+  stripePaymentIntentId String?             @unique
+  subtotal              Float
+  discountAmount        Float               @default(0)
+  deliveryFee           Float
+  total                 Float
+  notes                 String?
+  estimatedDeliveryTime DateTime?
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  adminNotifications    AdminNotification[]
+  loyaltyEvents         LoyaltyEvent[]
+  items                 OrderItem[]
+  address               Address             @relation(fields: [addressId], references: [id])
+  coupon                Coupon?             @relation(fields: [couponId], references: [id])
+  courier               Courier?            @relation(fields: [courierId], references: [id])
+  customer              User                @relation(fields: [customerId], references: [id])
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  productId String
+  quantity  Int
+  unitPrice Float
+  extras    Json    @default("[]")
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+model Courier {
+  id           String        @id @default(cuid())
+  userId       String        @unique
+  vehicleType  String
+  licensePlate String
+  status       CourierStatus @default(OFFLINE)
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders       Order[]
+
+  @@map("couriers")
+}
+
+model Setting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+
+  @@map("settings")
+}
+
+model LoyaltyRule {
+  id               String         @id @default(cuid())
+  name             String
+  active           Boolean        @default(true)
+  metricType       MetricType
+  metricValue      Int
+  periodDays       Int?
+  rewardType       RewardType
+  rewardValue      Float?
+  rewardProductId  String?
+  couponPrefix     String         @default("FIEL")
+  couponExpiryDays Int            @default(30)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  events           LoyaltyEvent[]
+  rewardProduct    Product?       @relation("FreeRuleProduct", fields: [rewardProductId], references: [id])
+
+  @@map("loyalty_rules")
+}
+
+model LoyaltyEvent {
+  id          String      @id @default(cuid())
+  userId      String
+  ruleId      String
+  orderId     String
+  couponId    String?
+  triggeredAt DateTime    @default(now())
+  coupon      Coupon?     @relation(fields: [couponId], references: [id])
+  order       Order       @relation(fields: [orderId], references: [id])
+  rule        LoyaltyRule @relation(fields: [ruleId], references: [id])
+  user        User        @relation(fields: [userId], references: [id])
+
+  @@map("loyalty_events")
+}
+
+model AdminNotification {
+  id        String                @id @default(cuid())
+  type      AdminNotificationType
+  orderId   String
+  message   String
+  read      Boolean               @default(false)
+  createdAt DateTime              @default(now())
+  order     Order                 @relation(fields: [orderId], references: [id])
+
+  @@map("admin_notifications")
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+  COURIER
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  READY
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum DiscountType {
+  PERCENT
+  FIXED
+  FREE_ITEM
+}
+
+enum CourierStatus {
+  AVAILABLE
+  BUSY
+  OFFLINE
+}
+
+enum MetricType {
+  ORDER_COUNT
+  TOTAL_SPENT
+  ORDERS_IN_PERIOD
+}
+
+enum RewardType {
+  DISCOUNT_PERCENT
+  DISCOUNT_FIXED
+  FREE_ITEM
+}
+
+enum AdminNotificationType {
+  NEW_ORDER
+  ORDER_CANCELLED
+  PAYMENT_FAILED
+}
