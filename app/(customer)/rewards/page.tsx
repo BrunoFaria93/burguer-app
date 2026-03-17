@@ -94,7 +94,7 @@ export default async function RewardsPage() {
             </p>
           )}
 
-          {rules.map((rule) => {
+          {rules.map((rule: (typeof rules)[0]) => {
             const progress = getProgress(rule);
             if (!progress) return null;
 
