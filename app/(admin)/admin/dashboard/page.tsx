@@ -1,6 +1,15 @@
 import { prisma } from "@/lib/prisma";
 import RecentOrders from "@/components/admin/RecentOrders";
 
+type RecentOrder = {
+  id: string;
+  status: string;
+  total: number;
+  createdAt: Date;
+  customer: { name: string };
+  items: { id: string }[];
+};
+
 export default async function DashboardPage() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -61,7 +70,7 @@ export default async function DashboardPage() {
               {label}
             </p>
             <p
-              className={`mt-2 text-xl md:text-3xl font-bold  whitespace-nowrap ${color}`}
+              className={`mt-2 text-xl md:text-3xl font-bold whitespace-nowrap ${color}`}
             >
               {value}
             </p>
@@ -70,7 +79,7 @@ export default async function DashboardPage() {
       </div>
 
       <RecentOrders
-        initial={recentOrders.map((o) => ({
+        initial={recentOrders.map((o: RecentOrder) => ({
           ...o,
           createdAt: o.createdAt.toISOString(),
         }))}
