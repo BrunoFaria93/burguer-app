@@ -18,7 +18,9 @@ export default async function HomePage() {
     prisma.setting.findMany(),
   ]);
 
-  const map = Object.fromEntries(settings.map((s) => [s.key, s.value]));
+  const map = Object.fromEntries(
+    settings.map((s: { key: string; value: string }) => [s.key, s.value]),
+  );
   const restaurantName = map.restaurantName || "Burger App";
   const estimatedTime = map.estimatedDeliveryTime || "30";
   const deliveryFee = map.deliveryFee || "0";
