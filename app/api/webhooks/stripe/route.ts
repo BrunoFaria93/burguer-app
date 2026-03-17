@@ -68,7 +68,11 @@ export async function POST(req: NextRequest) {
     // Email admin
     const itemsList = order.items
       .map(
-        (i) =>
+        (i: {
+          quantity: number;
+          unitPrice: number;
+          product: { name: string };
+        }) =>
           `<li>${i.quantity}x ${i.product.name} — R$${(i.unitPrice * i.quantity).toFixed(2)}</li>`,
       )
       .join("");
