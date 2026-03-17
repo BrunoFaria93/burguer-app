@@ -9,7 +9,9 @@ const inter = Inter({ subsets: ["latin"] });
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await prisma.setting.findMany();
-  const map = Object.fromEntries(settings.map((s) => [s.key, s.value]));
+  const map = Object.fromEntries(
+    settings.map((s: { key: string; value: string }) => [s.key, s.value]),
+  );
   const name = map.restaurantName || "Burger App";
 
   return {
