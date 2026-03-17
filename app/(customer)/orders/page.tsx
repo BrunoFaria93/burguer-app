@@ -116,7 +116,16 @@ export default function OrdersPage() {
                   #{order.id.slice(0, 8)}
                 </p>
                 <OrderStatusBadge
-                  status={order.status as import("@prisma/client").OrderStatus}
+                  status={
+                    order.status as
+                      | "PENDING"
+                      | "CONFIRMED"
+                      | "PREPARING"
+                      | "READY"
+                      | "OUT_FOR_DELIVERY"
+                      | "DELIVERED"
+                      | "CANCELLED"
+                  }
                 />
               </div>
 
