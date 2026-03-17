@@ -12,7 +12,9 @@ export default async function CustomerLayout({
   const session = await auth();
 
   const settings = await prisma.setting.findMany();
-  const map = Object.fromEntries(settings.map((s) => [s.key, s.value]));
+  const map = Object.fromEntries(
+    settings.map((s: { key: string; value: string }) => [s.key, s.value]),
+  );
   const restaurantName = map.restaurantName || "Burger App";
 
   return (
