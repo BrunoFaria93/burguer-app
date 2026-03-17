@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../generated/prisma/client"
 }
 
 datasource db {
@@ -303,3 +304,4 @@ enum AdminNotificationType {
   ORDER_CANCELLED
   PAYMENT_FAILED
 }
+
