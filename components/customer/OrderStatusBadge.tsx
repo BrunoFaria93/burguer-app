@@ -1,4 +1,11 @@
-import { OrderStatus } from "@prisma/client";
+type OrderStatus =
+  | "PENDING"
+  | "CONFIRMED"
+  | "PREPARING"
+  | "READY"
+  | "OUT_FOR_DELIVERY"
+  | "DELIVERED"
+  | "CANCELLED";
 
 const labels: Record<OrderStatus, string> = {
   PENDING: "Aguardando pagamento",

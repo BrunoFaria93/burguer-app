@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { MetricType, RewardType } from "@prisma/client";
 
+type MetricType = "ORDER_COUNT" | "TOTAL_SPENT" | "ORDERS_IN_PERIOD";
+type RewardType = "DISCOUNT_PERCENT" | "DISCOUNT_FIXED" | "FREE_ITEM";
 type Rule = {
   id: string;
   name: string;

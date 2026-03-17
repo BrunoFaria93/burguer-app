@@ -1,8 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { OrderStatus } from "@prisma/client";
 import { MapPin, Phone, CheckCircle, Bike, Clock } from "lucide-react";
+
+type OrderStatus =
+  | "PENDING"
+  | "CONFIRMED"
+  | "PREPARING"
+  | "READY"
+  | "OUT_FOR_DELIVERY"
+  | "DELIVERED"
+  | "CANCELLED";
 
 type Order = {
   id: string;
