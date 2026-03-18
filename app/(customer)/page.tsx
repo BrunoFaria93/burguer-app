@@ -43,141 +43,200 @@ export default async function HomePage() {
   const deliveryFee = map.deliveryFee || "0";
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white overflow-x-hidden">
-      {/* Hero */}
-      <section className="relative flex items-center overflow-hidden px-4 py-16 sm:px-6 sm:py-24 min-h-[480px]">
-        <div className="pointer-events-none absolute left-1/2 top-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-orange-500/10 blur-3xl" />
-        <div className="relative z-10 mx-auto w-full max-w-5xl">
-          <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
-            <div className="max-w-xl">
-              <span className="mb-4 inline-block rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-orange-400">
-                Aberto agora
-              </span>
-              <h1 className="text-4xl font-black leading-none tracking-tight sm:text-5xl lg:text-7xl">
-                {restaurantName.toUpperCase()}
-              </h1>
-              <p className="mt-4 text-sm text-zinc-400 sm:text-base lg:text-lg">
-                Carnes artesanais, pão brioche e muito sabor. Peça agora e
-                receba em casa.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <a
-                  href="#cardapio"
-                  className="rounded-xl bg-orange-500 px-8 py-3 text-sm font-bold text-white transition hover:bg-orange-400"
-                >
-                  Ver cardapio
-                </a>
-                <Link
-                  href="/cart"
-                  className="rounded-xl border border-zinc-700 bg-zinc-900 px-8 py-3 text-sm font-bold text-zinc-300 transition hover:border-zinc-500 hover:text-white"
-                >
-                  Meu carrinho
-                </Link>
-              </div>
-            </div>
+    <div className="min-h-screen bg-gray-100">
+      {/* Hero — imagem full screen com header por cima */}
+      <section className="relative h-[100svh] min-h-[600px] overflow-hidden">
+        {/* Imagem de fundo */}
+        <img
+          src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1600&q=90&fit=crop"
+          alt="Burger"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
 
-            {/* Stats — linha no mobile, coluna no desktop */}
-            <div className="flex flex-row gap-3 lg:flex-col">
+        {/* Overlay gradiente escuro */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/90" />
+        {/* Conteudo sobre a imagem */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center px-6">
+          <div className="w-full max-w-xl text-center">
+            <span className="mb-3 inline-block rounded-full border border-orange-500/50 bg-orange-500/20 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-orange-300">
+              Aberto agora
+            </span>
+            <h1 className="text-5xl font-black leading-none tracking-tight text-white sm:text-6xl lg:text-7xl">
+              {restaurantName.toUpperCase()}
+            </h1>
+            <p className="mt-3 text-base text-white/70">
+              Carnes artesanais, pao brioche e muito sabor.
+            </p>
+
+            {/* Stats */}
+            <div className="mt-6 flex gap-3">
               {(
                 [
-                  { value: estimatedTime + "min", label: "Tempo medio" },
+                  { value: estimatedTime + " min", label: "Entrega" },
                   { value: "4.9", label: "Avaliacao" },
                   {
-                    value: "R$" + Number(deliveryFee).toFixed(0),
-                    label: "Taxa de entrega",
+                    value:
+                      Number(deliveryFee) === 0
+                        ? "Gratis"
+                        : "R$" + Number(deliveryFee).toFixed(0),
+                    label: "Taxa",
                   },
                 ] as { value: string; label: string }[]
               ).map(({ value, label }) => (
                 <div
                   key={label}
-                  className="flex-1 rounded-2xl border border-zinc-800 bg-zinc-900/80 px-3 py-3 text-center lg:px-6 lg:py-4"
+                  className="flex-1 rounded-2xl border border-white/10 bg-white/10 px-3 py-3 text-center backdrop-blur-sm"
                 >
-                  <p className="text-lg font-black text-orange-500 lg:text-2xl">
+                  <p className="text-base font-black text-white sm:text-lg">
                     {value}
                   </p>
-                  <p className="text-[10px] text-zinc-500 lg:text-xs">
-                    {label}
-                  </p>
+                  <p className="text-[10px] text-white/60">{label}</p>
                 </div>
               ))}
+            </div>
+
+            <a
+              href="#cardapio"
+              className="mt-6 inline-block w-full rounded-2xl bg-orange-500 py-4 text-center text-sm font-bold text-white transition hover:bg-orange-400 sm:w-auto sm:px-12"
+            >
+              Ver cardapio
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* Cardapio — fundo cinza claro estilo Sweetgreen */}
+      <section id="cardapio" className="bg-gray-100">
+        <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+          {categories.length === 0 && (
+            <div className="py-20 text-center text-gray-400">
+              <p className="text-lg">Cardapio em breve.</p>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 md:gap-8 md:items-start">
+            {/* Coluna esquerda — categorias 1, 3, 5... */}
+            <div className="space-y-10">
+              {(categories as Category[])
+                .filter((_, i) => i % 2 === 0)
+                .map((category) => (
+                  <div key={category.id}>
+                    <h2 className="mb-4 text-lg font-black uppercase tracking-widest text-gray-800">
+                      {category.name}
+                    </h2>
+                    <div className="space-y-3">
+                      {category.products.map((product) => (
+                        <div
+                          key={product.id}
+                          className="flex items-center gap-4 rounded-2xl bg-white p-3 shadow-sm transition hover:shadow-md"
+                        >
+                          <Link
+                            href={"/product/" + product.slug}
+                            className="flex-shrink-0"
+                          >
+                            <div className="h-20 w-20 overflow-hidden rounded-xl bg-gray-100 sm:h-24 sm:w-24">
+                              {product.imageUrl ? (
+                                <img
+                                  src={product.imageUrl}
+                                  alt={product.name}
+                                  className="h-full w-full object-cover"
+                                />
+                              ) : (
+                                <div className="flex h-full w-full items-center justify-center text-gray-300 text-xs">
+                                  Sem foto
+                                </div>
+                              )}
+                            </div>
+                          </Link>
+                          <div className="flex flex-1 min-w-0 flex-col justify-between gap-1">
+                            <Link href={"/product/" + product.slug}>
+                              <h3 className="font-bold text-gray-900 leading-tight">
+                                {product.name}
+                              </h3>
+                              {product.description && (
+                                <p className="mt-0.5 text-xs text-gray-400 line-clamp-2">
+                                  {product.description}
+                                </p>
+                              )}
+                            </Link>
+                            <div className="flex items-center justify-between mt-2">
+                              <p className="text-base font-black text-orange-500">
+                                R$ {product.price.toFixed(2)}
+                              </p>
+                              <QuickAddButton product={product} />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+            </div>
+
+            {/* Coluna direita — categorias 2, 4, 6... */}
+            <div className="space-y-10">
+              {(categories as Category[])
+                .filter((_, i) => i % 2 !== 0)
+                .map((category) => (
+                  <div key={category.id}>
+                    <h2 className="mb-4 text-lg font-black uppercase tracking-widest text-gray-800">
+                      {category.name}
+                    </h2>
+                    <div className="space-y-3">
+                      {category.products.map((product) => (
+                        <div
+                          key={product.id}
+                          className="flex items-center gap-4 rounded-2xl bg-white p-3 shadow-sm transition hover:shadow-md"
+                        >
+                          <Link
+                            href={"/product/" + product.slug}
+                            className="flex-shrink-0"
+                          >
+                            <div className="h-20 w-20 overflow-hidden rounded-xl bg-gray-100 sm:h-24 sm:w-24">
+                              {product.imageUrl ? (
+                                <img
+                                  src={product.imageUrl}
+                                  alt={product.name}
+                                  className="h-full w-full object-cover"
+                                />
+                              ) : (
+                                <div className="flex h-full w-full items-center justify-center text-gray-300 text-xs">
+                                  Sem foto
+                                </div>
+                              )}
+                            </div>
+                          </Link>
+                          <div className="flex flex-1 min-w-0 flex-col justify-between gap-1">
+                            <Link href={"/product/" + product.slug}>
+                              <h3 className="font-bold text-gray-900 leading-tight">
+                                {product.name}
+                              </h3>
+                              {product.description && (
+                                <p className="mt-0.5 text-xs text-gray-400 line-clamp-2">
+                                  {product.description}
+                                </p>
+                              )}
+                            </Link>
+                            <div className="flex items-center justify-between mt-2">
+                              <p className="text-base font-black text-orange-500">
+                                R$ {product.price.toFixed(2)}
+                              </p>
+                              <QuickAddButton product={product} />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
             </div>
           </div>
         </div>
       </section>
 
-      <div className="border-t border-zinc-800" />
-
-      {/* Cardápio */}
-      <section
-        id="cardapio"
-        className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16"
-      >
-        {categories.length === 0 && (
-          <div className="py-20 text-center text-zinc-600">
-            <p className="text-lg">Cardapio em breve.</p>
-          </div>
-        )}
-        {(categories as Category[]).map((category) => (
-          <div key={category.id} className="mb-16">
-            <div className="mb-8 flex items-center gap-4">
-              <h2 className="text-xl font-black uppercase tracking-widest text-zinc-100">
-                {category.name}
-              </h2>
-              <div className="h-px flex-1 bg-zinc-800" />
-            </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {category.products.map((product) => (
-                <div
-                  key={product.id}
-                  className="group flex flex-col overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 transition-all duration-300 hover:border-orange-500/50 hover:bg-zinc-800/80"
-                >
-                  <Link href={"/product/" + product.slug} className="block">
-                    <div className="relative h-44 overflow-hidden bg-zinc-800">
-                      {product.imageUrl ? (
-                        <img
-                          src={product.imageUrl}
-                          alt={product.name}
-                          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                        />
-                      ) : (
-                        <div className="flex h-full items-center justify-center text-zinc-700 text-sm">
-                          Sem imagem
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 via-transparent to-transparent" />
-                      <div className="absolute bottom-3 left-3">
-                        <span className="rounded-lg bg-zinc-900/90 px-2 py-1 text-xs font-medium text-zinc-300">
-                          {product.preparationTime} min
-                        </span>
-                      </div>
-                    </div>
-                    <div className="p-4 pb-2">
-                      <h3 className="font-bold text-zinc-100">
-                        {product.name}
-                      </h3>
-                      {product.description && (
-                        <p className="mt-1 text-sm text-zinc-500 line-clamp-2">
-                          {product.description}
-                        </p>
-                      )}
-                    </div>
-                  </Link>
-                  <div className="flex items-center justify-between px-4 pb-4">
-                    <p className="text-lg font-black text-orange-500">
-                      R$ {product.price.toFixed(2)}
-                    </p>
-                    <QuickAddButton product={product} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </section>
-
-      <footer className="border-t border-zinc-800 bg-zinc-900/50 px-6 py-8 text-center">
-        <p className="text-sm font-bold text-zinc-400">{restaurantName}</p>
-        <p className="mt-1 text-xs text-zinc-600">
+      <footer className="bg-gray-200 px-6 py-6 text-center">
+        <p className="text-sm font-bold text-gray-500">{restaurantName}</p>
+        <p className="mt-1 text-xs text-gray-400">
           Todos os direitos reservados
         </p>
       </footer>

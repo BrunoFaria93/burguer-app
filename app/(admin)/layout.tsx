@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import NotificationBell from "@/components/admin/NotificationBell";
+import LogoutButton from "@/components/admin/LogoutButton";
 import {
   LayoutDashboard,
   UtensilsCrossed,
@@ -15,20 +16,19 @@ import {
 
 const navItems = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/menu", label: "Cardápio", icon: UtensilsCrossed },
+  { href: "/admin/menu", label: "Cardapio", icon: UtensilsCrossed },
   { href: "/admin/orders", label: "Pedidos", icon: ShoppingBag },
   { href: "/admin/couriers", label: "Motoqueiros", icon: Bike },
   { href: "/admin/customers", label: "Clientes", icon: Users },
   { href: "/admin/coupons", label: "Cupons", icon: Ticket },
   { href: "/admin/loyalty", label: "Fidelidade", icon: Gift },
-  { href: "/admin/settings", label: "Configurações", icon: Settings },
+  { href: "/admin/settings", label: "Configuracoes", icon: Settings },
 ];
 
-// No mobile mostra só os 5 itens mais usados na bottom bar
 const mobileNavItems = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/orders", label: "Pedidos", icon: ShoppingBag },
-  { href: "/admin/menu", label: "Cardápio", icon: UtensilsCrossed },
+  { href: "/admin/menu", label: "Cardapio", icon: UtensilsCrossed },
   { href: "/admin/couriers", label: "Motos", icon: Bike },
   { href: "/admin/settings", label: "Config", icon: Settings },
 ];
@@ -42,13 +42,16 @@ export default async function AdminLayout({
   if (!session || session.user.role !== "ADMIN") redirect("/");
 
   return (
-    <div className="flex min-h-screen bg-background">
-      {/* Sidebar — só no desktop */}
-      <aside className="hidden md:flex md:w-64 flex-col border-r border-border bg-card">
-        <div className="flex h-16 items-center border-b border-border px-6">
-          <span className="text-lg font-bold text-orange-500">🍔 Admin</span>
+    <div className="flex h-screen overflow-hidden bg-background">
+      {/* Sidebar — fixo na altura da tela */}
+      <aside className="hidden md:flex md:w-64 flex-shrink-0 flex-col border-r border-border bg-card h-screen">
+        {/* Topo sempre visível */}
+        <div className="flex h-16 flex-shrink-0 items-center border-b border-border px-6">
+          <span className="text-lg font-bold text-orange-500">Admin</span>
         </div>
-        <nav className="p-4 space-y-1">
+
+        {/* Nav com scroll se necessário */}
+        <nav className="flex-1 overflow-y-auto p-4 space-y-1">
           {navItems.map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
@@ -60,25 +63,41 @@ export default async function AdminLayout({
             </Link>
           ))}
         </nav>
+
+        {/* Rodapé sempre visível */}
+        <div className="flex-shrink-0 border-t border-border p-4">
+          <p className="px-3 py-1 text-xs text-muted-foreground truncate">
+            {session.user.email}
+          </p>
+          <LogoutButton />
+        </div>
       </aside>
 
-      {/* Conteúdo */}
-      <div className="flex flex-1 flex-col min-w-0">
-        <header className="flex h-16 items-center justify-between border-b border-border px-4 md:px-6">
-          {/* Nome no mobile */}
+      {/* Conteúdo principal com scroll */}
+      <div className="flex flex-1 flex-col min-w-0 h-screen overflow-hidden">
+        {/* Header sempre visível */}
+        <header className="flex h-16 flex-shrink-0 items-center justify-between border-b border-border px-4 md:px-6">
           <span className="text-base font-bold text-orange-500 md:hidden">
-            🍔 Admin
+            Admin
           </span>
           <h1 className="hidden md:block font-semibold">
             Painel Administrativo
           </h1>
-          <NotificationBell />
+          <div className="flex items-center gap-2">
+            <NotificationBell />
+            <div className="md:hidden">
+              <LogoutButton />
+            </div>
+          </div>
         </header>
-        {/* pb-20 no mobile pra não ficar atrás da bottom bar */}
-        <main className="flex-1 p-4 pb-24 md:p-6 md:pb-6">{children}</main>
+
+        {/* Área de conteúdo com scroll */}
+        <main className="flex-1 overflow-y-auto p-4 pb-24 md:p-6 md:pb-6">
+          {children}
+        </main>
       </div>
 
-      {/* Bottom nav — só no mobile */}
+      {/* Bottom nav mobile */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background/95 backdrop-blur md:hidden">
         <div className="flex items-center justify-around h-16 px-2">
           {mobileNavItems.map(({ href, label, icon: Icon }) => (
